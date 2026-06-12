@@ -7,28 +7,18 @@ This is an implementation of a microcontroller based on my previous project "MIP
 **_Version 1 (current):_**
 - Implementation of a very basic MCU with 32 GPIO pins.
 - Contains a single MIPS 32 core.
-- Memory mapping based on 5 adress spacing.
-  
-  +------------------+
-  |                  | 0x00000000
-  |                  |
-  |   Data Memory    |
-  |                  |
-  |                  | 0x0000003F
-  +------------------+
-  |                  | 0x00000040
-  |     GPIO OUT     |
-  |                  | 0x00000047
-  +------------------+
-  |                  | 0x00000048
-  |     GPIO IN      |
-  |                  | 0x0000004B
-  +------------------+
-  |                  | 0x0000004C
-  |    GPIO ENABLE   |
-  |                  | 
-  +------------------+
-  |                  |
-  |     GPIO DIR     |
-  |                  |
-  +------------------+
+- Memory mapping based on 5 address spacing.
+
+**_Features:_**
+* 32 bidirectional GPIO pins.
+* Enable and direction registers to set pins as output or input
+* 16kB RAM, 4 32-bit GPIO registers and 32 32-bit general purpose registers.
+* GPIO_EN: Enables or disables a GPIO pin.
+  GPIO_DIR: Sets GPIO pins as input (0) or output (1).
+  GPIO_IN: Stores the GPIO input data.
+  GPIO_OUT: Stores the GPIO output data.
+
+**_Limitations:_**
+* No UART, SPI or I2C protocol.
+* No counters.
+* NO ADCs or DACs.
