@@ -5,11 +5,11 @@ input clk,rst;
 inout [31:0] gpio_pins;
 output of;
 
-wire we3,we,sel1,sel2,sel3,j,beq,bne,ofs,br6,br7,br8,br9,brval,taken,
+wire we3,we,sel1,sel2,sel3,j,beq,bne,ofs,br6,br7,br8,br9,brval,taken,tc_sig,tp_sig,cnf_sig,
 br10,br11,cr5,cr6,cr7,cr8,dr4,dr5,memrd,flush,flush_id,flush_if,br15,zf,
 selm,t1,stall,nop,ar3,br16,mispredict,gpio_o,gpio_i,dm_sig,gpio_e,gpio_d,dmw;
 wire [2:0]op,br5;
-wire [31:0]pc,instr,rdreg1,rdreg2,sim,alres1,alres2,alres3,d_out,m1r,m2r,m3r,
+wire [31:0]pc,instr,rdreg1,rdreg2,sim,alres1,alres2,alres3,d_out,m1r,m2r,m3r,pre,comp,cnf,
 m4r,m5r,pro1,ar1,ar2,br1,br2,br3,br4,cr1,cr2,cr3,dr1,dr2,btp,opra,oprb,dec_adr,d_mask,
 e_mask,dmem_out,gpi_out;
 wire [4:0]mr,br12,br13,br14,cr4,dr3;
@@ -83,11 +83,16 @@ bht b1 (.ind(pc[5:2]),.clk(clk),.val(selm),.br(brval),.bta(alres3),.taken(taken)
 //MCU architecture
 and g1 (dmw, dm_sig,cr7);
 addr_decoder ad1 (.addr(cr1),.da(dec_adr),.ga(gpio_o),.gina(gpio_i),
-.gena(gpio_e),.drina(gpio_d),.dm(dm_sig));
+.gena(gpio_e),.drina(gpio_d),.dm(dm_sig),.tc(tc_sig),.tp(tp_sig),.t_cnf(cnf_sig));
 gpio_out gp1 (.din(m2r),.pin(gpio_pins),.clk(clk),.w(gpio_o),.g_en(e_mask),
 .g_dir(d_mask));
 gpio_in gp2 (.pin(gpio_pins),.gpi(gpi_out),.clk(clk),.w(gpio_i),.g_en(e_mask),.g_dir(d_mask));
 gpio_dir gp3 (.din(m2r),.clk(clk),.dir_mask(d_mask),.w(gpio_d));
 gpio_en gp4 (.din(m2r),.clk(clk),.en_mask(e_mask),.w(gpio_e));
 mux_32 mx (.a(gpi_out),.b(dmem_out),.sel(dm_sig),.o(d_out));
+
+timer t1 (.pre_scale(pre),.clk(clk),.comp(comp),.en(),.clk_out());
+timer_prescale tp1 (.w(tp_sig),.clk(clk),.out(pre),.in(m2r),.rst(rst));
+timer_cop tc1 (.w(tc_sig),.clk(clk),.in(m2r),.out(comp),.rst(rst));
+timer_config tc2 (.clk(clk),.w(cnf_sig),.rst(rst),.in(m2r),.out(cnf));
 endmodule

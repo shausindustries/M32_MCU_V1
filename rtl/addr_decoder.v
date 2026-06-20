@@ -1,7 +1,7 @@
-module addr_decoder(addr,da,ga,gena,gina,drina,dm);
+module addr_decoder(addr,da,ga,gena,gina,drina,dm,t_cnf,tc,tp);
 input [31:0] addr;
 output reg [31:0]da;
-output reg ga,gina,drina,gena,dm;
+output reg ga,gina,drina,gena,dm,t_cnf,tc,tp;
 
 always@ (*)
 begin
@@ -40,6 +40,36 @@ begin
         gina= 1'b0;
         gena = 1'b0;
         drina = 1'b1;
+    end
+    else if (addr > 32'h00004010 && addr < 32'h00004015) begin
+        dm = 1'b0;
+        ga = 1'b0;
+        gina= 1'b0;
+        gena = 1'b0;
+        drina = 1'b0;
+        tp = 1'b1;
+        tc = 1'b0;
+        t_cnf = 1'b0;
+    end
+    else if (addr > 32'h00004014 && addr < 32'h00004019) begin
+        dm = 1'b0;
+        ga = 1'b0;
+        gina= 1'b0;
+        gena = 1'b0;
+        drina = 1'b0;
+        tp = 1'b0;
+        tc = 1'b1;
+        t_cnf = 1'b0;
+    end
+    else if (addr > 32'h00004018 && addr < 32'h0000401D) begin
+        dm = 1'b0;
+        ga = 1'b0;
+        gina= 1'b0;
+        gena = 1'b0;
+        drina = 1'b0;
+        tp = 1'b0;
+        tc = 1'b0;
+        t_cnf = 1'b1;
     end
 end
 endmodule
