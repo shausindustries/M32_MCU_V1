@@ -6,7 +6,7 @@ inout [31:0] gpio_pins;
 output of;
 
 wire we3,we,sel1,sel2,sel3,j,beq,bne,ofs,br6,br7,br8,br9,brval,taken,tc_sig,tp_sig,cnf_sig,
-br10,br11,cr5,cr6,cr7,cr8,dr4,dr5,memrd,flush,flush_id,flush_if,br15,zf,
+br10,br11,cr5,cr6,cr7,cr8,dr4,dr5,memrd,flush,flush_id,flush_if,br15,zf,scl1,
 selm,t1,stall,nop,ar3,br16,mispredict,gpio_o,gpio_i,dm_sig,gpio_e,gpio_d,dmw;
 wire [2:0]op,br5;
 wire [31:0]pc,instr,rdreg1,rdreg2,sim,alres1,alres2,alres3,d_out,m1r,m2r,m3r,pre,comp,cnf,
@@ -91,8 +91,10 @@ gpio_dir gp3 (.din(m2r),.clk(clk),.dir_mask(d_mask),.w(gpio_d));
 gpio_en gp4 (.din(m2r),.clk(clk),.en_mask(e_mask),.w(gpio_e));
 mux_32 mx (.a(gpi_out),.b(dmem_out),.sel(dm_sig),.o(d_out));
 
-timer t1 (.pre_scale(pre),.clk(clk),.comp(comp),.en(),.clk_out());
+timer t1 (.pre_scale(pre),.clk(clk),.comp(comp),.en(),.clk_out(scl1));
 timer_prescale tp1 (.w(tp_sig),.clk(clk),.out(pre),.in(m2r),.rst(rst));
 timer_cop tc1 (.w(tc_sig),.clk(clk),.in(m2r),.out(comp),.rst(rst));
 timer_config tc2 (.clk(clk),.w(cnf_sig),.rst(rst),.in(m2r),.out(cnf));
+uart_tx ut1 (.clk(scl1),.w(),.din(m2r),.dout(/*gpio pin*/));
+uart_rx ur1 (.clk(scl1),.din(/*gpio pin*/),.r(),.dp());
 endmodule
