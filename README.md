@@ -23,7 +23,7 @@ This is an implementation of a microcontroller based on my previous project "MIP
 * No counters.
 * NO ADCs or DACs.
 
-**_Version 1.5:_**
+**_Version 2:_**
 - Implementation of a single 32 bit counter/timer.
 - Timer_Prescale: 32 bit register that contains the prescaler value.
   Timer_Comp: 32 bit register that contains the comparator value.
@@ -36,9 +36,13 @@ This is an implementation of a microcontroller based on my previous project "MIP
 - Implement pin multiplexing.
 
 
-**_Version 2 (current):_**
+**_Version 3:_**
 - Upgraded design for UART and I2C communication.
 
 **_Improvements:_**
 * Implement SPI.
 * Implement pin multiplexing.
+
+**_Version 4 (current):_**
+- Upgraded the design to accommodate GPIO multiplexing.
+- GPIO direction, enable and uart enable can be used for it. 
