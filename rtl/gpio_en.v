@@ -11,6 +11,6 @@ begin
         gp_en <= din;
     end
     else
-        en_mask = gp_en;
+        en_mask <= gp_en;
 end
 endmodule

@@ -6,12 +6,12 @@ inout [31:0] gpio_pins;
 output of;
 
 wire we3,we,sel1,sel2,sel3,j,beq,bne,ofs,br6,br7,br8,br9,brval,taken,tc_sig,tp_sig,cnf_sig,
-br10,br11,cr5,cr6,cr7,cr8,dr4,dr5,memrd,flush,flush_id,flush_if,br15,zf,scl1,
-selm,t1,stall,nop,ar3,br16,mispredict,gpio_o,gpio_i,dm_sig,gpio_e,gpio_d,dmw;
+br10,br11,cr5,cr6,cr7,cr8,dr4,dr5,memrd,flush,flush_id,flush_if,br15,zf,scl1,uts,urs,
+selm,t1,stall,nop,ar3,br16,mispredict,gpio_o,gpio_i,dm_sig,gpio_e,gpio_d,dmw,ues,tri_sig,urx,utx;
 wire [2:0]op,br5;
-wire [31:0]pc,instr,rdreg1,rdreg2,sim,alres1,alres2,alres3,d_out,m1r,m2r,m3r,pre,comp,cnf,
-m4r,m5r,pro1,ar1,ar2,br1,br2,br3,br4,cr1,cr2,cr3,dr1,dr2,btp,opra,oprb,dec_adr,d_mask,
-e_mask,dmem_out,gpi_out;
+wire [31:0]pc,instr,rdreg1,rdreg2,sim,alres1,alres2,alres3,d1_out,m1r,m2r,m3r,pre,comp,cnf,
+m4r,m5r,pro1,ar1,ar2,br1,br2,br3,br4,cr1,cr2,cr3,dr1,dr2,btp,opra,oprb,dec_adr,d_mask,d_out,
+e_mask,dmem_out,gpi_out,uart_data,uen,gp_out,pin,pon;
 wire [4:0]mr,br12,br13,br14,cr4,dr3;
 wire [1:0]sel1mf,sel2mf;
 wire [25:0] pro2;
@@ -23,6 +23,9 @@ assign selm = ((~zf & br15)|(zf & br11));
 assign mispredict = br16 ^ selm;
 assign flush_id = nop | flush | mispredict;
 assign flush_if = j | flush | mispredict;
+
+assign gpio_pins = ~(tri_sig) ? pon : 32'bz;
+assign pin = gpio_pins;
 
 //Architecture
 prog_counter pc1 (.pco(pc),.clk(clk),.pci(m5r),.stl(stall),.rst(rst));
@@ -82,19 +85,23 @@ bht b1 (.ind(pc[5:2]),.clk(clk),.val(selm),.br(brval),.bta(alres3),.taken(taken)
 
 //MCU architecture
 and g1 (dmw, dm_sig,cr7);
-addr_decoder ad1 (.addr(cr1),.da(dec_adr),.ga(gpio_o),.gina(gpio_i),
+addr_decoder ad1 (.addr(cr1),.da(dec_adr),.ga(gpio_o),.gina(gpio_i),.ue(ues),.ut(uts),.ur(urs),
 .gena(gpio_e),.drina(gpio_d),.dm(dm_sig),.tc(tc_sig),.tp(tp_sig),.t_cnf(cnf_sig));
-gpio_out gp1 (.din(m2r),.pin(gpio_pins),.clk(clk),.w(gpio_o),.g_en(e_mask),
-.g_dir(d_mask));
-gpio_in gp2 (.pin(gpio_pins),.gpi(gpi_out),.clk(clk),.w(gpio_i),.g_en(e_mask),.g_dir(d_mask));
+gpio_out gp1 (.din(m2r),.pin(gpio_pins),.clk(clk),.w(gpio_o));
+gpio_in gp2 (.pin(gpio_pins),.gpi(gpi_out),.clk(clk),.w(gpio_i));
 gpio_dir gp3 (.din(m2r),.clk(clk),.dir_mask(d_mask),.w(gpio_d));
 gpio_en gp4 (.din(m2r),.clk(clk),.en_mask(e_mask),.w(gpio_e));
-mux_32 mx (.a(gpi_out),.b(dmem_out),.sel(dm_sig),.o(d_out));
+mux_32 mx (.a(gpi_out),.b(dmem_out),.sel(dm_sig),.o(d1_out));
 
 timer t1 (.pre_scale(pre),.clk(clk),.comp(comp),.en(),.clk_out(scl1));
 timer_prescale tp1 (.w(tp_sig),.clk(clk),.out(pre),.in(m2r),.rst(rst));
 timer_cop tc1 (.w(tc_sig),.clk(clk),.in(m2r),.out(comp),.rst(rst));
 timer_config tc2 (.clk(clk),.w(cnf_sig),.rst(rst),.in(m2r),.out(cnf));
-uart_tx ut1 (.clk(scl1),.w(),.din(m2r),.dout(/*gpio pin*/));
-uart_rx ur1 (.clk(scl1),.din(/*gpio pin*/),.r(),.dp());
+uart_tx ut1 (.clk(scl1),.w(uts),.din(m2r),.dout(utx));
+uart_rx ur1 (.clk(scl1),.din(urx),.r(~(urs)),.dp(uart_data));
+uart_en ue1 (.clk(clk),.in(m2r),.mask(),.w(ues));
+mux_32 mix (.a(d1_out),.b(uart_data),.o(d_out),.sel(urs));
+
+gpio_controller gc1 (.gen(e_mask),.go(gp_out),.gi(gpi_out),.uen(uen),.ud(utx),.gdr(d_mask),
+.uin(urx),.ins(tri_sig),.pin_out(pon),.pin_in(pin));
 endmodule

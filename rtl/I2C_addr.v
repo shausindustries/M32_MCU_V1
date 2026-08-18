@@ -7,6 +7,10 @@ reg [31:0] iaddar;
 
 always@ (posedge clk)
 begin
-    
+    if (w) begin
+        iaddar <= din;
+    end
+    else
+        dout <= iaddar;
 end
 endmodule
